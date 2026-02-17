@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Theme base del sistema (XML) -->
+    <style name="Theme.Global_Moviles_2_23310191" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- puedes dejarlo vacío -->
+    </style>
+
+    <!-- Theme Splash -->
+    <style name="Theme.Global_Moviles_2_23310191.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="windowSplashScreenAnimationDuration">400</item>
+        <item name="postSplashScreenTheme">@style/Theme.Global_Moviles_2_23310191</item>
+    </style>
+
+</resources>
