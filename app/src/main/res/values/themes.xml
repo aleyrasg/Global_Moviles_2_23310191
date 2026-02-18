@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Theme base del sistema (XML) -->
-    <style name="Theme.Global_Moviles_2_23310191" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Global_Moviles_2_23310191" parent="">
         <!-- puedes dejarlo vacío -->
     </style>
 

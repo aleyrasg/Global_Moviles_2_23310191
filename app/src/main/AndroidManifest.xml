@@ -40,6 +40,10 @@
             android:name=".notifications.ReminderReceiver"
             android:exported="false" />
 
+        <receiver
+            android:name=".ui.reminders.RoutineReminderReceiver"
+            android:exported="false" />
+
 
     </application>
 

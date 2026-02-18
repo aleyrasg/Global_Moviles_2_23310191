@@ -57,6 +57,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    // ✅ FIX: Iconos extended (Visibility / VisibilityOff)
+    implementation("androidx.compose.material:material-icons-extended")
+
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
@@ -73,6 +77,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.maps.android:maps-compose:4.4.1")
     implementation("com.google.maps.android:maps-compose-utils:4.4.1")
+    implementation(libs.androidx.compose.material3.lint)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -13,6 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.global_moviles_2_23310191.data.model.Place
+import com.example.global_moviles_2_23310191.ui.map.MapPickerScreen
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun PlaceFormScreen(
@@ -31,6 +33,16 @@ fun PlaceFormScreen(
     var name by remember(editingPlace) { mutableStateOf(editingPlace?.name ?: "") }
     var address by remember(editingPlace) { mutableStateOf(editingPlace?.address ?: "") }
     var description by remember(editingPlace) { mutableStateOf(editingPlace?.description ?: "") }
+
+    // ✅ Estado para abrir/cerrar mapa y guardar coords
+    var showMapPicker by remember { mutableStateOf(false) }
+    var pickedLatLng by remember(editingPlace) {
+        mutableStateOf(
+            editingPlace?.lat?.let { lat ->
+                editingPlace.lng?.let { lng -> LatLng(lat, lng) }
+            }
+        )
+    }
 
     // uri local (nueva foto seleccionada)
     var selectedPhotoUri by remember { mutableStateOf<Uri?>(null) }
@@ -75,6 +87,29 @@ fun PlaceFormScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = !state.loading
         )
+
+        Spacer(Modifier.height(10.dp))
+
+        // ✅ Botón para elegir dirección desde mapa
+        OutlinedButton(
+            onClick = { showMapPicker = true },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !state.loading
+        ) {
+            Text(
+                if (pickedLatLng == null) "Elegir ubicación en mapa"
+                else "Cambiar ubicación en mapa"
+            )
+        }
+
+        pickedLatLng?.let {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "📍 ${it.latitude}, ${it.longitude}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         Spacer(Modifier.height(10.dp))
 
@@ -129,12 +164,17 @@ fun PlaceFormScreen(
                     return@Button
                 }
 
+                val lat = pickedLatLng?.latitude
+                val lng = pickedLatLng?.longitude
+
                 if (placeId == null) {
                     vm.create(
                         place = Place(
                             name = n,
                             address = a,
-                            description = d
+                            description = d,
+                            lat = lat,
+                            lng = lng
                         ),
                         photoUri = selectedPhotoUri
                     ) {
@@ -147,7 +187,9 @@ fun PlaceFormScreen(
                         place = base.copy(
                             name = n,
                             address = a,
-                            description = d
+                            description = d,
+                            lat = lat,
+                            lng = lng
                         ),
                         newPhotoUri = selectedPhotoUri
                     ) {
@@ -171,5 +213,21 @@ fun PlaceFormScreen(
         ) {
             Text("Cancelar")
         }
+    }
+
+    // ✅ Overlay del mapa (picker)
+    if (showMapPicker) {
+        MapPickerScreen(
+            initial = pickedLatLng ?: LatLng(20.6736, -103.344), // GDL default
+            onCancel = { showMapPicker = false },
+            onConfirm = { latLng, resolvedAddress ->
+                pickedLatLng = latLng
+                // opcional: autollenar dirección con lo que devuelve el geocoder
+                if (!resolvedAddress.isNullOrBlank()) {
+                    address = resolvedAddress
+                }
+                showMapPicker = false
+            }
+        )
     }
 }
