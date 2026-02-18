@@ -34,11 +34,13 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
     var loading by remember { mutableStateOf(false) }
     var showPassword by remember { mutableStateOf(false) }
 
+    val cs = MaterialTheme.colorScheme
+
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.surface
+            cs.primary.copy(alpha = 0.18f),
+            cs.background,
+            cs.surface
         )
     )
 
@@ -57,13 +59,14 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
 
             Text(
                 text = "Crear cuenta ✨",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                color = cs.onBackground
             )
             Spacer(Modifier.height(6.dp))
             Text(
                 text = "Regístrate para empezar",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = cs.onSurfaceVariant
             )
 
             Spacer(Modifier.height(20.dp))
@@ -71,6 +74,7 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.elevatedCardColors(containerColor = cs.surface),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
             ) {
                 Column(
@@ -84,7 +88,14 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
                         label = { Text("Email") },
                         leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = cs.primary,
+                            focusedLabelColor = cs.primary,
+                            cursorColor = cs.primary,
+                            unfocusedBorderColor = cs.outline,
+                            unfocusedLabelColor = cs.onSurfaceVariant
+                        )
                     )
 
                     OutlinedTextField(
@@ -95,7 +106,7 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
                         trailingIcon = {
                             Text(
                                 text = if (showPassword) "Ocultar" else "Ver",
-                                color = MaterialTheme.colorScheme.primary,
+                                color = cs.primary,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(50))
                                     .clickable { showPassword = !showPassword }
@@ -103,9 +114,17 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
                             )
                         },
                         visualTransformation =
-                            if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                            if (showPassword) VisualTransformation.None
+                            else PasswordVisualTransformation(),
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = cs.primary,
+                            focusedLabelColor = cs.primary,
+                            cursorColor = cs.primary,
+                            unfocusedBorderColor = cs.outline,
+                            unfocusedLabelColor = cs.onSurfaceVariant
+                        )
                     )
 
                     Row(
@@ -114,9 +133,14 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
                     ) {
                         Checkbox(
                             checked = rememberMe,
-                            onCheckedChange = { rememberMe = it }
+                            onCheckedChange = { rememberMe = it },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = cs.primary,
+                                uncheckedColor = cs.outline,
+                                checkmarkColor = cs.onPrimary
+                            )
                         )
-                        Text("Recordarme")
+                        Text("Recordarme", color = cs.onSurface)
                     }
 
                     Button(
@@ -152,12 +176,17 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        shape = RoundedCornerShape(14.dp)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = cs.primary,
+                            contentColor = cs.onPrimary
+                        )
                     ) {
                         if (loading) {
                             CircularProgressIndicator(
                                 strokeWidth = 2.dp,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(20.dp),
+                                color = cs.onPrimary
                             )
                             Spacer(Modifier.width(10.dp))
                             Text("Creando...")
@@ -171,7 +200,10 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        shape = RoundedCornerShape(14.dp)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = cs.primary
+                        )
                     ) {
                         Text("Volver a Login")
                     }
@@ -182,7 +214,7 @@ fun RegisterScreen(navController: NavController, vm: AuthViewModel = viewModel()
             Text(
                 text = "Tip: usa una contraseña segura 😄",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = cs.onSurfaceVariant
             )
         }
     }

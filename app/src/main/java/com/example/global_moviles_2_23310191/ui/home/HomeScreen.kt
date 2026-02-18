@@ -31,21 +31,24 @@ fun HomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Cargar rutinas al entrar
+    val cs = MaterialTheme.colorScheme
+
     LaunchedEffect(Unit) { routineVm.load() }
 
-    // 🔹 Contenido del Drawer (barra lateral)
     val drawerContent: @Composable () -> Unit = {
-        ModalDrawerSheet {
+        ModalDrawerSheet(
+            drawerContainerColor = cs.surface,
+            drawerContentColor = cs.onSurface
+        ) {
             Spacer(Modifier.height(12.dp))
             Text(
                 text = "Menú",
                 style = MaterialTheme.typography.titleLarge,
+                color = cs.onSurface,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
-            Divider()
+            Divider(color = cs.outlineVariant)
 
-            // ✅ Orden solicitado: Lugares, Mapa, Recordatorios, Cerrar sesión
             NavigationDrawerItem(
                 label = { Text("Lugares") },
                 selected = false,
@@ -53,7 +56,12 @@ fun HomeScreen(
                     scope.launch { drawerState.close() }
                     navController.navigate(Routes.PLACES) { launchSingleTop = true }
                 },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                colors = NavigationDrawerItemDefaults.colors(
+                    unselectedContainerColor = cs.surface,
+                    unselectedTextColor = cs.onSurface,
+                    unselectedIconColor = cs.onSurfaceVariant
+                )
             )
 
             NavigationDrawerItem(
@@ -63,7 +71,12 @@ fun HomeScreen(
                     scope.launch { drawerState.close() }
                     navController.navigate(Routes.MAP) { launchSingleTop = true }
                 },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                colors = NavigationDrawerItemDefaults.colors(
+                    unselectedContainerColor = cs.surface,
+                    unselectedTextColor = cs.onSurface,
+                    unselectedIconColor = cs.onSurfaceVariant
+                )
             )
 
             NavigationDrawerItem(
@@ -73,10 +86,15 @@ fun HomeScreen(
                     scope.launch { drawerState.close() }
                     navController.navigate(Routes.REMINDERS) { launchSingleTop = true }
                 },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                colors = NavigationDrawerItemDefaults.colors(
+                    unselectedContainerColor = cs.surface,
+                    unselectedTextColor = cs.onSurface,
+                    unselectedIconColor = cs.onSurfaceVariant
+                )
             )
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 8.dp), color = cs.outlineVariant)
 
             NavigationDrawerItem(
                 label = { Text("Cerrar sesión") },
@@ -89,31 +107,42 @@ fun HomeScreen(
                         launchSingleTop = true
                     }
                 },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                colors = NavigationDrawerItemDefaults.colors(
+                    unselectedContainerColor = cs.surface,
+                    unselectedTextColor = cs.onSurface,
+                    unselectedIconColor = cs.onSurfaceVariant
+                )
             )
         }
     }
 
-    // 🧠 Drawer wrapper
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = drawerContent
     ) {
         Scaffold(
+            containerColor = cs.background,
             topBar = {
                 TopAppBar(
-                    title = { Text("Rutinas") },
+                    title = { Text("Rutinas", color = cs.onSurface) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = cs.onSurface)
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = cs.surface,
+                        titleContentColor = cs.onSurface
+                    )
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = {
-                    navController.navigate(Routes.ROUTINE_FORM) // crear rutina
-                }) {
+                FloatingActionButton(
+                    onClick = { navController.navigate(Routes.ROUTINE_FORM) },
+                    containerColor = cs.primary,
+                    contentColor = cs.onPrimary
+                ) {
                     Icon(Icons.Default.Add, contentDescription = "Nueva rutina")
                 }
             }
@@ -125,26 +154,28 @@ fun HomeScreen(
                     .padding(16.dp)
             ) {
 
-                // Estado loading/error como ya lo manejas en listas
                 state.error?.let {
-                    Text("Error: $it", color = MaterialTheme.colorScheme.error)
+                    Text("Error: $it", color = cs.error)
                     Spacer(Modifier.height(8.dp))
                 }
 
                 if (state.loading) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = cs.primary,
+                        trackColor = cs.surfaceVariant
+                    )
                     Spacer(Modifier.height(12.dp))
                 }
 
                 if (!state.loading && state.routines.isEmpty()) {
                     Text(
                         "Aún no tienes rutinas. Presiona + para crear una.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = cs.onSurfaceVariant
                     )
                     return@Column
                 }
 
-                // ✅ Lista visual de rutinas existentes
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -153,7 +184,6 @@ fun HomeScreen(
                         RoutineHomeCard(
                             routine = routine,
                             onClick = {
-                                // Editar rutina
                                 navController.navigate("${Routes.ROUTINE_FORM}/${routine.id}")
                             }
                         )
@@ -169,26 +199,32 @@ private fun RoutineHomeCard(
     routine: Routine,
     onClick: () -> Unit
 ) {
+    val cs = MaterialTheme.colorScheme
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = cs.surfaceVariant,
+            contentColor = cs.onSurface
+        ),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
-            Text(routine.name, style = MaterialTheme.typography.titleMedium)
+            Text(routine.name, style = MaterialTheme.typography.titleMedium, color = cs.onSurface)
             Spacer(Modifier.height(4.dp))
             Text(
                 "Tipo: ${routine.type} • ${routine.durationMin} min",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = cs.onSurfaceVariant
             )
             if (routine.notes.isNotBlank()) {
                 Spacer(Modifier.height(6.dp))
                 Text(
                     routine.notes,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = cs.onSurfaceVariant
                 )
             }
         }
