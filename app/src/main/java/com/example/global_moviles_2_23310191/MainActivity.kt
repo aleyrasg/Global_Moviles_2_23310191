@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.global_moviles_2_23310191.notifications.NotificationChannels
 import com.example.global_moviles_2_23310191.ui.auth.AuthViewModel
@@ -15,6 +16,10 @@ import com.google.firebase.FirebaseApp
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // ✅ SplashScreen API (ANTES de super.onCreate)
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
 
         // ✅ Inicializa Firebase
@@ -22,7 +27,6 @@ class MainActivity : ComponentActivity() {
 
         // ✅ Crea el canal de notificaciones (Android 8+)
         NotificationChannels.create(this)
-
 
         setContent {
             Global_Moviles_2_23310191Theme {
@@ -34,7 +38,6 @@ class MainActivity : ComponentActivity() {
                     if (authViewModel.isLoggedIn()) Routes.HOME else Routes.LOGIN
                 }
 
-                // ✅ AQUI ya se pasa el vm
                 AppNavGraph(
                     startDestination = startDestination,
                     vm = authViewModel

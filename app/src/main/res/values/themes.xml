@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Theme base del sistema (XML) -->
-    <style name="Theme.Global_Moviles_2_23310191" parent="">
-        <!-- puedes dejarlo vacío -->
+    <!-- ✅ Tema base real de la app -->
+    <style name="Theme.Global_Moviles_2_23310191"
+        parent="">
+        <!-- Puedes personalizar colores aquí si quieres -->
     </style>
 
-    <!-- Theme Splash -->
-    <style name="Theme.Global_Moviles_2_23310191.Splash" parent="Theme.SplashScreen">
+    <!-- ✅ Tema Splash -->
+    <style name="Theme.Global_Moviles_2_23310191.Splash"
+        parent="Theme.SplashScreen">
+
+        <!-- Color de fondo -->
         <item name="windowSplashScreenBackground">@color/splash_background</item>
+
+        <!-- Icono -->
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+
+        <!-- Duración animación -->
         <item name="windowSplashScreenAnimationDuration">400</item>
-        <item name="postSplashScreenTheme">@style/Theme.Global_Moviles_2_23310191</item>
+
+        <!-- Tema después del splash -->
+        <item name="postSplashScreenTheme">
+            @style/Theme.Global_Moviles_2_23310191
+        </item>
+
     </style>
 
 </resources>
