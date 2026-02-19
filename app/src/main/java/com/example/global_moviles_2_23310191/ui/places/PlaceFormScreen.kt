@@ -20,6 +20,8 @@ import com.google.android.gms.maps.model.LatLng
 fun PlaceFormScreen(
     navController: NavController,
     placeId: String?,
+    initialLat: Double? = null,
+    initialLng: Double? = null,
     vm: PlaceViewModel = viewModel()
 ) {
     val ctx = LocalContext.current
@@ -36,10 +38,16 @@ fun PlaceFormScreen(
 
     // ✅ Estado para abrir/cerrar mapa y guardar coords
     var showMapPicker by remember { mutableStateOf(false) }
-    var pickedLatLng by remember(editingPlace) {
+    var pickedLatLng by remember(editingPlace, initialLat, initialLng) {
         mutableStateOf(
-            editingPlace?.lat?.let { lat ->
-                editingPlace.lng?.let { lng -> LatLng(lat, lng) }
+            when {
+                // Si viene del mapa (initialLat/initialLng)
+                initialLat != null && initialLng != null -> LatLng(initialLat, initialLng)
+                // Si es editar, usar coords existentes
+                editingPlace?.lat != null && editingPlace.lng != null ->
+                    LatLng(editingPlace.lat!!, editingPlace.lng!!)
+                // Default: Guadalajara
+                else -> null
             }
         )
     }

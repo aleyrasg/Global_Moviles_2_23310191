@@ -11,6 +11,6 @@ object Routes {
     const val PLACES = "places"
     const val PLACE_FORM = "place_form"
     const val MAP = "map"
-    const val REMINDERS = "reminders"
-
+    const val PROGRESS = "progress"
+    const val PROGRESS_FORM = "progress_form"
 }

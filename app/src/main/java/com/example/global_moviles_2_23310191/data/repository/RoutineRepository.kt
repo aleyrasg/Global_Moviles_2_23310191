@@ -28,11 +28,12 @@ class RoutineRepository(
         }
     }
 
-    suspend fun create(r: Routine) {
+    suspend fun create(r: Routine): String {
         val userId = uid()
         val doc = col.document()
         val data = r.copy(id = "", userId = userId)
         doc.set(data).await()
+        return doc.id
     }
 
     suspend fun update(r: Routine) {
