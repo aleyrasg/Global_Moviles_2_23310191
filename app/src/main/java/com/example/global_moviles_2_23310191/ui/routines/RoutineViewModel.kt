@@ -6,12 +6,14 @@ import com.example.global_moviles_2_23310191.data.model.Routine
 import com.example.global_moviles_2_23310191.data.repository.RoutineRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class RoutineUiState(
     val loading: Boolean = false,
     val routines: List<Routine> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
+    val saved: Boolean = false // To trigger navigation
 )
 
 class RoutineViewModel(
@@ -19,57 +21,61 @@ class RoutineViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RoutineUiState())
-    val state: StateFlow<RoutineUiState> = _state
+    val state: StateFlow<RoutineUiState> = _state.asStateFlow()
 
     fun load() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(loading = true, error = null)
-            runCatching { repo.getAll() }
-                .onSuccess { list ->
-                    _state.value = RoutineUiState(loading = false, routines = list)
-                }
-                .onFailure { e ->
-                    _state.value = RoutineUiState(loading = false, routines = emptyList(), error = e.message)
-                }
+            _state.value = RoutineUiState(loading = true)
+            try {
+                val routines = repo.getAll()
+                _state.value = RoutineUiState(routines = routines)
+            } catch (e: Exception) {
+                _state.value = RoutineUiState(error = e.message)
+            }
         }
     }
 
-    fun create(r: Routine, onDone: () -> Unit) {
+    fun create(routine: Routine, onCreated: (String) -> Unit = {}) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(loading = true, error = null)
-            runCatching { repo.create(r) }
-                .onSuccess {
-                    load()
-                    onDone()
-                }
-                .onFailure { e ->
-                    _state.value = _state.value.copy(loading = false, error = e.message)
-                }
+            _state.value = _state.value.copy(loading = true, saved = false)
+            try {
+                val id = repo.create(routine)
+                _state.value = _state.value.copy(loading = false, saved = true)
+                onCreated(id)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(loading = false, error = e.message)
+            }
         }
     }
 
-    fun update(r: Routine, onDone: () -> Unit) {
+    fun update(routine: Routine) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(loading = true, error = null)
-            runCatching { repo.update(r) }
-                .onSuccess {
-                    load()
-                    onDone()
-                }
-                .onFailure { e ->
-                    _state.value = _state.value.copy(loading = false, error = e.message)
-                }
+            _state.value = _state.value.copy(loading = true, saved = false)
+            try {
+                repo.update(routine)
+                _state.value = _state.value.copy(loading = false, saved = true)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(loading = false, error = e.message)
+            }
         }
     }
 
     fun delete(id: String) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(loading = true, error = null)
-            runCatching { repo.delete(id) }
-                .onSuccess { load() }
-                .onFailure { e ->
-                    _state.value = _state.value.copy(loading = false, error = e.message)
-                }
+            _state.value = _state.value.copy(loading = true)
+            try {
+                repo.delete(id)
+                // Remove the deleted routine from the current state
+                val updatedRoutines = _state.value.routines.filterNot { it.id == id }
+                _state.value = _state.value.copy(loading = false, routines = updatedRoutines)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(loading = false, error = e.message)
+            }
         }
+    }
+
+    // Call this from the UI after navigation has occurred
+    fun resetSavedState() {
+        _state.value = _state.value.copy(saved = false)
     }
 }

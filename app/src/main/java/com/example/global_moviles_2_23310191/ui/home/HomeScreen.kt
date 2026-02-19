@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,6 +17,8 @@ import com.example.global_moviles_2_23310191.data.model.Routine
 import com.example.global_moviles_2_23310191.ui.auth.AuthViewModel
 import com.example.global_moviles_2_23310191.ui.navigation.Routes
 import com.example.global_moviles_2_23310191.ui.routines.RoutineViewModel
+import com.example.global_moviles_2_23310191.utils.formatReminderDays
+import com.example.global_moviles_2_23310191.utils.formatReminderTime
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +48,7 @@ fun HomeScreen(
                 color = cs.onSurface,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
-            Divider(color = cs.outlineVariant)
+            HorizontalDivider(color = cs.outlineVariant)
 
             NavigationDrawerItem(
                 label = { Text("Lugares") },
@@ -80,11 +81,11 @@ fun HomeScreen(
             )
 
             NavigationDrawerItem(
-                label = { Text("Recordatorios") },
+                label = { Text("Progreso") },
                 selected = false,
                 onClick = {
                     scope.launch { drawerState.close() }
-                    navController.navigate(Routes.REMINDERS) { launchSingleTop = true }
+                    navController.navigate(Routes.PROGRESS) { launchSingleTop = true }
                 },
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                 colors = NavigationDrawerItemDefaults.colors(
@@ -94,7 +95,7 @@ fun HomeScreen(
                 )
             )
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp), color = cs.outlineVariant)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = cs.outlineVariant)
 
             NavigationDrawerItem(
                 label = { Text("Cerrar sesión") },
@@ -151,17 +152,19 @@ fun HomeScreen(
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize()
-                    .padding(16.dp)
             ) {
 
-                state.error?.let {
-                    Text("Error: $it", color = cs.error)
-                    Spacer(Modifier.height(8.dp))
+                Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    state.error?.let {
+                        Text("Error: $it", color = cs.error)
+                    }
                 }
 
                 if (state.loading) {
                     LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         color = cs.primary,
                         trackColor = cs.surfaceVariant
                     )
@@ -169,15 +172,18 @@ fun HomeScreen(
                 }
 
                 if (!state.loading && state.routines.isEmpty()) {
-                    Text(
-                        "Aún no tienes rutinas. Presiona + para crear una.",
-                        color = cs.onSurfaceVariant
-                    )
+                    Box(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Aún no tienes rutinas. Presiona + para crear una.",
+                            color = cs.onSurfaceVariant
+                        )
+                    }
                     return@Column
                 }
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(state.routines) { routine ->
@@ -223,6 +229,14 @@ private fun RoutineHomeCard(
                 Spacer(Modifier.height(6.dp))
                 Text(
                     routine.notes,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = cs.onSurfaceVariant
+                )
+            }
+            if (routine.reminderDays.isNotEmpty() && routine.reminderHour >= 0 && routine.reminderMinute >= 0) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "Recordatorio: ${formatReminderDays(routine.reminderDays)} ${formatReminderTime(routine.reminderHour, routine.reminderMinute)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = cs.onSurfaceVariant
                 )

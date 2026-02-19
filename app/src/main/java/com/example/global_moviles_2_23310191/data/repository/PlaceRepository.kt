@@ -32,6 +32,8 @@ class PlaceRepository {
                 address = doc.getString("address") ?: "",
                 description = doc.getString("description") ?: "",
                 photoUrl = doc.getString("photoUrl"),
+                lat = doc.getDouble("lat"),
+                lng = doc.getDouble("lng"),
                 createdAt = doc.getTimestamp("createdAt")?.toDate()?.time ?: 0L
             )
         }
@@ -40,7 +42,16 @@ class PlaceRepository {
     suspend fun create(place: Place, photoUri: Uri?) {
         val userId = uid()
 
-        val url: String? = photoUri?.let { StorageUploader.uploadImage(it, folder = "places") }
+        val url: String? = photoUri?.let {
+            try {
+                StorageUploader.uploadImage(it, folder = "places")
+            } catch (e: Exception) {
+                android.util.Log.e("PlaceRepository", "Error al subir foto: ${e.message}")
+                android.util.Log.e("PlaceRepository", "Verifica las reglas de Firebase Storage")
+                e.printStackTrace()
+                null
+            }
+        }
 
         val data = hashMapOf(
             "userId" to userId,
@@ -48,6 +59,8 @@ class PlaceRepository {
             "address" to place.address,
             "description" to place.description,
             "photoUrl" to url,
+            "lat" to place.lat,
+            "lng" to place.lng,
             "createdAt" to Timestamp.now()
         )
 
@@ -57,12 +70,23 @@ class PlaceRepository {
     suspend fun update(place: Place, newPhotoUri: Uri?) {
         uid()
 
-        val newUrl: String? = newPhotoUri?.let { StorageUploader.uploadImage(it, folder = "places") }
+        val newUrl: String? = newPhotoUri?.let {
+            try {
+                StorageUploader.uploadImage(it, folder = "places")
+            } catch (e: Exception) {
+                android.util.Log.e("PlaceRepository", "Error al subir foto: ${e.message}")
+                android.util.Log.e("PlaceRepository", "Verifica las reglas de Firebase Storage")
+                e.printStackTrace()
+                null
+            }
+        }
 
         val data = hashMapOf<String, Any?>(
             "name" to place.name,
             "address" to place.address,
-            "description" to place.description
+            "description" to place.description,
+            "lat" to place.lat,
+            "lng" to place.lng
         )
 
         if (newUrl != null) data["photoUrl"] = newUrl

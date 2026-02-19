@@ -38,6 +38,15 @@ class ReminderRepo(context: Context) {
         saveAll(all)
     }
 
+    fun getByRoutineId(routineId: String): List<RoutineReminder> {
+        return getAll().filter { it.routineId == routineId }
+    }
+
+    fun deleteByRoutineId(routineId: String) {
+        val all = getAll().filterNot { it.routineId == routineId }
+        saveAll(all)
+    }
+
     private fun saveAll(list: List<RoutineReminder>) {
         val arr = JSONArray()
         list.forEach { r ->

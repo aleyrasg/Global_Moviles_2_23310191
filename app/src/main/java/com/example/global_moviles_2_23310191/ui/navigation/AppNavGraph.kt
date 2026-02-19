@@ -13,7 +13,8 @@ import com.example.global_moviles_2_23310191.ui.home.HomeScreen
 import com.example.global_moviles_2_23310191.ui.map.MapScreen
 import com.example.global_moviles_2_23310191.ui.places.PlaceFormScreen
 import com.example.global_moviles_2_23310191.ui.places.PlaceListScreen
-import com.example.global_moviles_2_23310191.ui.reminders.ReminderScreen
+import com.example.global_moviles_2_23310191.ui.progress.ProgressFormScreen
+import com.example.global_moviles_2_23310191.ui.progress.ProgressListScreen
 import com.example.global_moviles_2_23310191.ui.routines.RoutineFormScreen
 import com.example.global_moviles_2_23310191.ui.routines.RoutineListScreen
 
@@ -45,6 +46,23 @@ fun AppNavGraph(
 
         composable(Routes.PLACES) { PlaceListScreen(navController) }
 
+        composable(
+            route = "${Routes.PLACE_FORM}?lat={lat}&lng={lng}",
+            arguments = listOf(
+                navArgument("lat") { type = NavType.FloatType; defaultValue = 0f },
+                navArgument("lng") { type = NavType.FloatType; defaultValue = 0f }
+            )
+        ) { backStackEntry ->
+            val lat = backStackEntry.arguments?.getFloat("lat") ?: 0f
+            val lng = backStackEntry.arguments?.getFloat("lng") ?: 0f
+            PlaceFormScreen(
+                navController = navController,
+                placeId = null,
+                initialLat = if (lat != 0f) lat.toDouble() else null,
+                initialLng = if (lng != 0f) lng.toDouble() else null
+            )
+        }
+
         composable(Routes.PLACE_FORM) {
             PlaceFormScreen(navController, placeId = null)
         }
@@ -57,9 +75,10 @@ fun AppNavGraph(
             PlaceFormScreen(navController, placeId = id)
         }
 
-        composable(Routes.MAP) { MapScreen() }
+        composable(Routes.MAP) { MapScreen(navController) }
 
-        // ✅ FIX: pasar navController
-        composable(Routes.REMINDERS) { ReminderScreen(navController) }
+        composable(Routes.PROGRESS) { ProgressListScreen(navController) }
+
+        composable(Routes.PROGRESS_FORM) { ProgressFormScreen(navController) }
     }
 }
